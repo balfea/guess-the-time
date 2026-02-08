@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Quick dev server for GuessTheTime
 
 1. Install dependencies
@@ -31,3 +32,6 @@ Notes:
 - Keep `server.js` and your `.env` on the server (don't commit secrets).
 -- The server now returns a signed JWT on successful login. Provide `ADMIN_PASSWORD_HASH` (recommended) or `ADMIN_PASSWORD` in `.env`, and set a strong `JWT_SECRET` for production.
 -- Use `ADMIN_PASSWORD_HASH` with a bcrypt hash when possible. The README includes a command to generate the hash locally.
+=======
+# guess-the-time
+>>>>>>> origin/main
