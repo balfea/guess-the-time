@@ -45,20 +45,25 @@ Notes:
 
 **Want admin functionality on your GitHub Pages site?** Deploy the backend to Railway.com!
 
-👉 **[Complete Railway.com Deployment Guide](RAILWAY_DEPLOYMENT.md)** - Step-by-step instructions for deploying to Railway.com
+👉 **[Railway Setup Checklist](RAILWAY_SETUP_CHECKLIST.md)** - Step-by-step connection guide (YOU need to do this)
+
+👉 **[Complete Railway.com Deployment Guide](RAILWAY_DEPLOYMENT.md)** - Detailed technical documentation
 
 **Why Railway.com?**
 - ✅ Free tier available
 - ✅ Secure environment variables for passwords
 - ✅ Automatic HTTPS
 - ✅ Auto-deploy from GitHub
-- ✅ Easy setup (5 minutes)
+- ✅ Easy setup (5-10 minutes)
 
-The deployment guide covers:
-- Setting up Railway.com
+**Important:** An AI assistant cannot connect Railway.com to your GitHub account. You must log in to Railway.com yourself with your GitHub credentials and authorize the connection.
+
+The setup checklist covers:
+- Logging in to Railway.com with your GitHub account
+- Creating a new project from this repository
 - Configuring environment variables
 - Connecting to GitHub Pages
-- Troubleshooting tips
+- Verification steps
 
 ## Enabling GitHub Pages
 
