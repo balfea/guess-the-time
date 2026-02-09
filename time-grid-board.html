@@ -4,16 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Grid Board</title>
+    <style>
+        /* Add your CSS styles here */
+    </style>
 </head>
 <body>
+    <h1>Time Grid Board</h1>
     <script>
-        const fetchData = async () => {
-            const responseLogin = await fetch('https://guess-the-time.railway.app/login');
-            const responseVerify = await fetch('https://guess-the-time.railway.app/verify');
-            const responseReset = await fetch('https://guess-the-time.railway.app/reset');
-            // Handle responses...
-        };
+        async function fetchData() {
+            try {
+                const loginResponse = await fetch('https://guess-the-time.railway.app/login');
+                const verifyResponse = await fetch('https://guess-the-time.railway.app/verify');
+                const resetResponse = await fetch('https://guess-the-time.railway.app/reset');
 
+                // Handle responses
+                if (loginResponse.ok && verifyResponse.ok && resetResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    const verifyData = await verifyResponse.json();
+                    const resetData = await resetResponse.json();
+                    // Process data
+                } else {
+                    console.error('Failed to fetch data.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
         fetchData();
     </script>
 </body>
