@@ -2,6 +2,40 @@
 
 This guide explains how to deploy the `server.js` backend to Railway.com to enable admin functionality for the GitHub Pages site at `https://balfea.github.io/guess-the-time/time-grid-board.html`.
 
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     GitHub Pages (Static)                   │
+│         https://balfea.github.io/guess-the-time/            │
+│                   time-grid-board.html                      │
+│                                                             │
+│  - Displays game board                                      │
+│  - Stores reservations in localStorage                      │
+│  - Admin button makes API calls ──────────┐                │
+└───────────────────────────────────────────┼────────────────┘
+                                            │
+                                            │ HTTPS
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Railway.com (Backend)                     │
+│         https://your-app.up.railway.app                     │
+│                                                             │
+│  - Node.js server running server.js                        │
+│  - Handles admin authentication                            │
+│  - Environment variables for secrets:                      │
+│    • ADMIN_PASSWORD_HASH                                   │
+│    • JWT_SECRET                                            │
+│    • PORT (auto-set by Railway)                           │
+│                                                             │
+│  API Endpoints:                                            │
+│  POST /login   - Admin authentication                      │
+│  POST /verify  - Token verification                        │
+│  POST /reset   - Reset all reservations                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ## Why Railway.com?
 
 Railway.com is perfect for this project because:
