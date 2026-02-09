@@ -3,34 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Grid Board</title>
-    <style>
-        /* Add your CSS styles here */
-    </style>
+    <title>Guess the Time</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Time Grid Board</h1>
-    <script>
-        async function fetchData() {
-            try {
-                const loginResponse = await fetch('https://guess-the-time.railway.app/login');
-                const verifyResponse = await fetch('https://guess-the-time.railway.app/verify');
-                const resetResponse = await fetch('https://guess-the-time.railway.app/reset');
+    <h1>Guess the Time</h1>
+    <form id="timeGuessForm">
+        <label for="timeGuess">Enter your guess (HH:MM:SS):</label>
+        <input type="text" id="timeGuess" name="timeGuess" required>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
 
-                // Handle responses
-                if (loginResponse.ok && verifyResponse.ok && resetResponse.ok) {
-                    const loginData = await loginResponse.json();
-                    const verifyData = await verifyResponse.json();
-                    const resetData = await resetResponse.json();
-                    // Process data
-                } else {
-                    console.error('Failed to fetch data.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-        fetchData();
+    <script>
+        // Fetching endpoints updated
+        const endpoints = {
+            login: 'https://guess-the-time.railway.app/login',
+            verify: 'https://guess-the-time.railway.app/verify',
+            reset: 'https://guess-the-time.railway.app/reset'
+        };
+
+        // Function to handle form submission
+        document.getElementById('timeGuessForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const timeGuess = document.getElementById('timeGuess').value;
+            fetch(endpoints.verify, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({guess: timeGuess})
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = data.result;
+            })
+            .catch(error => console.error('Error:', error));
+        });
     </script>
 </body>
 </html>
