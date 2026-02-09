@@ -171,9 +171,12 @@
         }
 
         .cell-number {
-            font-size: 0.75em;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 0.7em;
             font-weight: bold;
-            margin-bottom: 2px;
+            color: #666;
         }
 
         header img {
@@ -410,7 +413,7 @@
                 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'cell-number';
-                numberDiv.textContent = `#${slot.number}`;
+                numberDiv.textContent = slot.number;
                 
                 const timeDiv = document.createElement('div');
                 timeDiv.className = 'time';
