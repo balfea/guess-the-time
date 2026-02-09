@@ -381,14 +381,16 @@
         //
         // To find your Railway URL:
         //   1. Log in to https://railway.app/dashboard
-        //   2. Click on your project
-        //   3. Go to Settings > Domains
-        //   4. Copy the generated Railway URL
+        //   2. Click on your project (in this case: "illustrious-love")
+        //   3. Click on your service (usually named after your repo)
+        //   4. Look at the top of the page for the public URL
+        //   5. If no URL is shown, go to Settings tab and look for "Networking" or 
+        //      "Public Networking" section - click "Generate Domain" if needed
         //
         // NOTE: The backend must be deployed with ADMIN_PASSWORD_HASH and JWT_SECRET
         // environment variables configured. See RAILWAY_DEPLOYMENT.md for details.
         // ============================================================================
-        const RAILWAY_BACKEND_URL = 'https://guess-the-time.up.railway.app';
+        const RAILWAY_BACKEND_URL = 'https://guess-the-time-production.up.railway.app';
         
         // Determine which backend to use based on environment
         const API_BASE_URL = window.location.hostname.includes('github.io') 
