@@ -24,7 +24,7 @@ GitHub rulesets need to be configured through the GitHub web interface. While th
 
 ### Method 1: Via GitHub Web UI (Recommended)
 
-1. Go to your repository on GitHub: https://github.com/balfea/guess-the-time
+1. Go to your repository on GitHub (e.g., https://github.com/balfea/guess-the-time)
 2. Click on **Settings**
 3. In the left sidebar, click on **Rules** → **Rulesets**
 4. Click **New ruleset** → **New branch ruleset**

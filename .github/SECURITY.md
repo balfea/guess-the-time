@@ -40,7 +40,7 @@ For the `main` branch (and `master` if it exists):
 1. **Require a pull request before merging**
    - ✅ Require approvals: 1
    - ✅ Dismiss stale pull request approvals when new commits are pushed
-   - ✅ Require review from Code Owners
+   - ✅ Require review from code owners
 
 2. **Require status checks to pass before merging**
    - (Add any CI/CD checks if you have them)
