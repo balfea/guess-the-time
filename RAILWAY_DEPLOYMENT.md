@@ -150,7 +150,7 @@ After deployment:
    - Go to the **"Settings"** tab
    - Look for **"Networking"** or **"Public Networking"** section
    - Click **"Generate Domain"** to create a public URL
-6. Copy the URL (e.g., `https://illustrious-love-production.up.railway.app`)
+6. Copy the URL (should be: `https://guess-the-time-production.up.railway.app`)
 
 ## Step 5: Update GitHub Pages Configuration
 
@@ -168,7 +168,7 @@ Now connect your GitHub Pages site to the Railway backend:
 2. **Replace with your Railway URL:**
    ```javascript
    const API_BASE_URL = window.location.hostname.includes('github.io') 
-       ? 'https://illustrious-love-production.up.railway.app'  // Your Railway URL
+       ? 'https://guess-the-time-production.up.railway.app'  // Your Railway URL
        : '';
    ```
 

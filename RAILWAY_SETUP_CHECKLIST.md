@@ -59,6 +59,7 @@ Railway will automatically:
 ### Step 5: Get Your Railway URL 🌐
 
 **Your Railway project is named: `illustrious-love`**
+**Your Railway service URL is: `https://guess-the-time-production.up.railway.app`**
 
 To find your deployment URL:
 
@@ -69,7 +70,7 @@ To find your deployment URL:
    - Click the **"Settings"** tab (gear icon)
    - Scroll down to find **"Networking"** or **"Public Networking"** section
    - Click **"Generate Domain"** button to create a public URL
-5. Copy your Railway URL (e.g., `https://illustrious-love-production.up.railway.app`)
+5. Copy your Railway URL (should be: `https://guess-the-time-production.up.railway.app`)
 
 ### Step 6: Update GitHub Pages Configuration 📝
 
@@ -78,9 +79,9 @@ Now connect GitHub Pages to your Railway backend:
 1. Edit `time-grid-board.html` in this repository
 2. Find line ~391 where it says:
    ```javascript
-   const RAILWAY_BACKEND_URL = 'https://illustrious-love-production.up.railway.app';
+   const RAILWAY_BACKEND_URL = 'https://guess-the-time-production.up.railway.app';
    ```
-3. **Verify or update** with your actual Railway URL from Step 5
+3. **Verify it matches** your actual Railway URL from Step 5
 4. Commit and push to GitHub:
    ```bash
    git add time-grid-board.html
