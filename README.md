@@ -35,8 +35,19 @@ Notes:
 
 ## Repository Protection
 
-This repository is protected with GitHub rulesets and code ownership rules to prevent unauthorized modifications. See [`.github/SECURITY.md`](.github/SECURITY.md) for details on:
-- Branch protection rules
-- Code ownership configuration
-- How to set up repository protections
-- Security best practices
+This repository is protected with GitHub rulesets and code ownership rules to prevent unauthorized modifications.
+
+### 🚀 Quick Setup Guides
+
+- **[Quick Start](.github/QUICKSTART.md)** - 5-minute fast track setup
+- **[Complete Setup Guide](.github/SETUP_GUIDE.md)** - Detailed step-by-step instructions
+- **[Setup Checklist](.github/CHECKLIST.md)** - Track your progress
+- **[Security Documentation](.github/SECURITY.md)** - Comprehensive security guide
+- **[Ruleset Details](.github/rulesets/README.md)** - GitHub ruleset configuration
+
+### 🔒 Protection Features
+
+- ✅ All changes require pull requests with code owner approval
+- ✅ Direct pushes to main branch are blocked
+- ✅ Force pushes and branch deletion prevented
+- ✅ @balfea automatically added as reviewer on all PRs
