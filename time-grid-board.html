@@ -30,6 +30,19 @@
         header {
             text-align: center;
             margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
@@ -160,6 +173,20 @@
             font-size: 0.85em;
             font-weight: 600;
             margin-bottom: 4px;
+            text-align: center;
+            padding: 0 6px;
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            background: rgba(0,0,0,0.06);
+            color: #333;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75em;
         }
 
         .player-name {
@@ -280,10 +307,14 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎯 Guess Our Finish Times!</h1>
-            <p class="subtitle">Support Oli on his journey to the World Scout Jamboree </p>
-            <nl><p>Pick when you think we'll finish the Dartford Half Marathon</p></nl>
+            <img src="/Oli.png" alt="Oli" class="header-image">
+            <h1>Guess Our Finish Times!</h1>
         </header>
+        <div style="text-align: center;">
+            <p class="subtitle">Support Oli on his journey to the World Scout Jamboree </p>
+            <p>We're running the Dartford Half Marathon - Pick our combined finish time to win £10 (or £20 if 50 boxes or more are sold)</p>
+            <p>Contact Tracy or Andy via Facebook or WhatsApp to reserve your time. Donate £2 per box</p>
+        </div>
 
         <div class="controls">
             <div class="admin-toggle">
@@ -349,31 +380,38 @@
     </div>
 
     <script>
-        // Admin password must never be stored in client-side code.
-        // Authentication is performed by the server at POST /login.
         const STORAGE_KEY = 'timeGridReservations';
         let isAdminMode = false;
         let currentCell = null;
         let reservations = {};
 
-        // Generate time slots from 4h 10m to 4h 20m in 30-second intervals
+        // Generate time slots as sequential ranges (15s intervals)
         function generateTimeSlots() {
             const slots = [];
-            const startMinutes = 4 * 60; // 4h 00m in minutes
-            const endMinutes = 4 * 60 + 60;   // 4h 20m in minutes
-            const intervalSeconds = 60;
+            const startMinutes = 4 * 60 + 15; // start around 4:15
+            const endMinutes = 4 * 60 + 50;   // end around 4:50
+            const intervalSeconds = 15; // 15-second ranges: 00-14,15-29,...
 
             let totalSeconds = startMinutes * 60;
             const endSeconds = endMinutes * 60;
 
             while (totalSeconds <= endSeconds) {
-                const hours = Math.floor(totalSeconds / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-                
-                const timeStr = `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                slots.push(timeStr);
-                
+                const startSec = totalSeconds;
+                const endSec = totalSeconds + intervalSeconds - 1;
+
+                const sh = Math.floor(startSec / 3600);
+                const sm = Math.floor((startSec % 3600) / 60);
+                const ss = startSec % 60;
+
+                const eh = Math.floor(endSec / 3600);
+                const em = Math.floor((endSec % 3600) / 60);
+                const es = endSec % 60;
+
+                const startStr = `${sh}:${String(sm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+                const endStr = `${eh}:${String(em).padStart(2, '0')}:${String(es).padStart(2, '0')}`;
+
+                slots.push({ start: startStr, end: endStr });
+
                 totalSeconds += intervalSeconds;
             }
 
@@ -387,23 +425,28 @@
             
             grid.innerHTML = '';
             
-            timeSlots.forEach(time => {
+            timeSlots.forEach((slot, idx) => {
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
-                cell.dataset.time = time;
-                
+                cell.dataset.range = `${slot.start}-${slot.end}`;
+
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'cell-number';
+                numberDiv.textContent = idx + 1;
+
                 const timeDiv = document.createElement('div');
                 timeDiv.className = 'time';
-                timeDiv.textContent = time;
-                
+                timeDiv.textContent = `${slot.start}-${slot.end}`;
+
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'player-name';
-                
+
+                cell.appendChild(numberDiv);
                 cell.appendChild(timeDiv);
                 cell.appendChild(nameDiv);
-                
+
                 cell.addEventListener('click', () => handleCellClick(cell));
-                
+
                 grid.appendChild(cell);
             });
 
@@ -411,12 +454,21 @@
             loadReservations();
         }
 
-        // Load reservations from storage
+        // Load reservations from storage (supports extension `window.storage` or localStorage)
         async function loadReservations() {
             try {
-                const result = await window.storage.get(STORAGE_KEY, true);
-                if (result && result.value) {
-                    reservations = JSON.parse(result.value);
+                if (window.storage && window.storage.get) {
+                    const result = await window.storage.get(STORAGE_KEY, true);
+                    if (result && result.value) {
+                        reservations = JSON.parse(result.value);
+                        updateGrid();
+                        return;
+                    }
+                }
+
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    reservations = JSON.parse(raw);
                     updateGrid();
                 }
             } catch (error) {
@@ -425,10 +477,15 @@
             }
         }
 
-        // Save reservations to storage
+        // Save reservations to storage (supports extension `window.storage` or localStorage)
         async function saveToStorage() {
             try {
-                await window.storage.set(STORAGE_KEY, JSON.stringify(reservations), true);
+                const payload = JSON.stringify(reservations);
+                if (window.storage && window.storage.set) {
+                    await window.storage.set(STORAGE_KEY, payload, true);
+                } else {
+                    localStorage.setItem(STORAGE_KEY, payload);
+                }
             } catch (error) {
                 console.error('Error saving reservations:', error);
                 alert('Error saving reservation. Please try again.');
@@ -439,12 +496,12 @@
         function updateGrid() {
             const cells = document.querySelectorAll('.grid-cell');
             cells.forEach(cell => {
-                const time = cell.dataset.time;
+                const range = cell.dataset.range;
                 const nameDiv = cell.querySelector('.player-name');
-                
-                if (reservations[time]) {
+
+                if (reservations[range]) {
                     cell.classList.add('reserved');
-                    nameDiv.textContent = reservations[time];
+                    nameDiv.textContent = reservations[range];
                 } else {
                     cell.classList.remove('reserved');
                     nameDiv.textContent = '';
@@ -462,15 +519,16 @@
 
         // Handle cell click
         function handleCellClick(cell) {
+
             if (!isAdminMode) return;
 
             currentCell = cell;
-            const time = cell.dataset.time;
-            const playerName = reservations[time] || '';
+            const range = cell.dataset.range;
+            const playerName = reservations[range] || '';
 
             document.getElementById('modalTitle').textContent = 
                 playerName ? 'Edit Reservation' : 'Reserve Square';
-            document.getElementById('modalTime').textContent = `Time: ${time}`;
+            document.getElementById('modalTime').textContent = `Time: ${range}`;
             document.getElementById('playerName').value = playerName;
             document.getElementById('removeBtn').style.display = 
                 playerName ? 'block' : 'none';
@@ -486,8 +544,8 @@
                 return;
             }
 
-            const time = currentCell.dataset.time;
-            reservations[time] = playerName;
+            const range = currentCell.dataset.range;
+            reservations[range] = playerName;
             
             await saveToStorage();
             updateGrid();
@@ -500,8 +558,8 @@
                 return;
             }
 
-            const time = currentCell.dataset.time;
-            delete reservations[time];
+            const range = currentCell.dataset.range;
+            delete reservations[range];
             
             await saveToStorage();
             updateGrid();
