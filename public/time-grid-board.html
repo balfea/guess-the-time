@@ -158,7 +158,7 @@
         }
 
         .time {
-            font-size: 0.85em;
+            font-size: 0.7em;
             font-weight: 600;
             margin-bottom: 4px;
         }
@@ -168,6 +168,22 @@
             font-weight: 500;
             text-align: center;
             word-break: break-word;
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: #666;
+        }
+
+        header img {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
         }
 
         .stats {
@@ -281,9 +297,10 @@
 <body>
     <div class="container">
         <header>
+            <img src="/Oli.png" alt="Scout mascot Oli supporting the World Scout Jamboree">
             <h1>🎯 Guess Our Finish Times!</h1>
-            <p class="subtitle">Support Oli on his journey to the World Scout Jamboree </p>
-            <nl><p>Pick when you think we'll finish the Dartford Half Marathon</p></nl>
+            <p class="subtitle">Support Oli on his journey to the World Scout Jamboree</p>
+            <p>Pick when you think we'll finish the Dartford Half Marathon</p>
         </header>
 
         <div class="controls">
@@ -355,25 +372,26 @@
         let currentCell = null;
         let reservations = {};
 
-        // Generate time slots from 4h 10m to 4h 20m in 30-second intervals
+        // Generate time slots starting from 4:20:00 in 15-second intervals
         function generateTimeSlots() {
             const slots = [];
-            const startMinutes = 4 * 60; // 4h 00m in minutes
-            const endMinutes = 4 * 60 + 60;   // 4h 20m in minutes
-            const intervalSeconds = 60;
+            const startSeconds = (4 * 60 + 20) * 60; // 4h 20m 00s in seconds
+            const intervalSeconds = 15;
+            const numSlots = 100; // Generate 100 time slots
 
-            let totalSeconds = startMinutes * 60;
-            const endSeconds = endMinutes * 60;
-
-            while (totalSeconds <= endSeconds) {
-                const hours = Math.floor(totalSeconds / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
+            for (let i = 0; i < numSlots; i++) {
+                const startTime = startSeconds + (i * intervalSeconds);
+                const endTime = startTime + (intervalSeconds - 1);
                 
-                const timeStr = `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                slots.push(timeStr);
+                const formatTime = (totalSecs) => {
+                    const hours = Math.floor(totalSecs / 3600);
+                    const minutes = Math.floor((totalSecs % 3600) / 60);
+                    const seconds = totalSecs % 60;
+                    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                };
                 
-                totalSeconds += intervalSeconds;
+                const timeRange = `${formatTime(startTime)}-${formatTime(endTime)}`;
+                slots.push({ number: i + 1, timeRange, startTime: formatTime(startTime) });
             }
 
             return slots;
@@ -386,18 +404,25 @@
             
             grid.innerHTML = '';
             
-            timeSlots.forEach(time => {
+            timeSlots.forEach(slot => {
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
-                cell.dataset.time = time;
+                cell.dataset.time = slot.startTime;
+                cell.dataset.timerange = slot.timeRange;
+                cell.dataset.number = slot.number;
+                
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'cell-number';
+                numberDiv.textContent = slot.number;
                 
                 const timeDiv = document.createElement('div');
                 timeDiv.className = 'time';
-                timeDiv.textContent = time;
+                timeDiv.textContent = slot.timeRange;
                 
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'player-name';
                 
+                cell.appendChild(numberDiv);
                 cell.appendChild(timeDiv);
                 cell.appendChild(nameDiv);
                 
@@ -479,11 +504,13 @@
 
             currentCell = cell;
             const time = cell.dataset.time;
+            const timeRange = cell.dataset.timerange;
+            const cellNumber = cell.dataset.number;
             const playerName = reservations[time] || '';
 
             document.getElementById('modalTitle').textContent = 
                 playerName ? 'Edit Reservation' : 'Reserve Square';
-            document.getElementById('modalTime').textContent = `Time: ${time}`;
+            document.getElementById('modalTime').textContent = `Cell #${cellNumber}: ${timeRange}`;
             document.getElementById('playerName').value = playerName;
             document.getElementById('removeBtn').style.display = 
                 playerName ? 'block' : 'none';
