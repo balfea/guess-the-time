@@ -2,6 +2,8 @@
 
 Quick dev server for GuessTheTime
 
+## 🚀 Quick Start
+
 1. Install dependencies
 
 ```bash
@@ -36,6 +38,32 @@ https://balfea.github.io/guess-the-time/time-grid-board.html
 Notes:
 - Keep `server.js` and your `.env` on the server (don't commit secrets).
 - Use `ADMIN_PASSWORD_HASH` with a bcrypt hash when possible. The README includes a command to generate the hash locally.
+
+## 🌐 Deployment
+
+### Railway.com Deployment (Recommended)
+
+**Want admin functionality on your GitHub Pages site?** Deploy the backend to Railway.com!
+
+👉 **[Railway Setup Checklist](RAILWAY_SETUP_CHECKLIST.md)** - Step-by-step connection guide (YOU need to do this)
+
+👉 **[Complete Railway.com Deployment Guide](RAILWAY_DEPLOYMENT.md)** - Detailed technical documentation
+
+**Why Railway.com?**
+- ✅ Free tier available
+- ✅ Secure environment variables for passwords
+- ✅ Automatic HTTPS
+- ✅ Auto-deploy from GitHub
+- ✅ Easy setup (5-10 minutes)
+
+**Important:** An AI assistant cannot connect Railway.com to your GitHub account. You must log in to Railway.com yourself with your GitHub credentials and authorize the connection.
+
+The setup checklist covers:
+- Logging in to Railway.com with your GitHub account
+- Creating a new project from this repository
+- Configuring environment variables
+- Connecting to GitHub Pages
+- Verification steps
 
 ## Enabling GitHub Pages
 
