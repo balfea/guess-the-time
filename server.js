@@ -1,14 +1,26 @@
 const express = require('express');
+const cors = require('cors');
 require('dotenv').config();
 const app = express();
+
+// CORS configuration - allows requests from GitHub Pages
+app.use(cors({
+  origin: [
+    'https://yourusername.github.io', // Replace with your GitHub Pages URL
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // optional plain password (not recommended)
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH; // recommended: provide a bcrypt hash
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+const JWT_SECRET = process.env.JWT_SECRET || 'NpBIp0rKg2S6NuC7xX/FhX5w0cik9bG80pFqUIJ/8/w=';
 
 app.post('/login', async (req, res) => {
   const { password } = req.body;
@@ -20,7 +32,6 @@ app.post('/login', async (req, res) => {
     if (ADMIN_PASSWORD_HASH) {
       match = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
     } else if (ADMIN_PASSWORD) {
-      // fallback for simple setups (development only)
       match = password === ADMIN_PASSWORD;
     } else {
       return res.status(500).json({ ok: false, error: 'admin password not configured' });
@@ -38,7 +49,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// JWT verification middleware
 function requireAuth(req, res, next) {
   const auth = req.headers.authorization || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : (req.cookies && req.cookies.token) || null;
@@ -53,7 +63,6 @@ function requireAuth(req, res, next) {
   }
 }
 
-// simple verify endpoint to check token validity from client
 app.post('/verify', (req, res) => {
   const auth = req.headers.authorization || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
@@ -66,9 +75,7 @@ app.post('/verify', (req, res) => {
   }
 });
 
-// protected reset endpoint (no server-side state here; used to gate the action)
 app.post('/reset', requireAuth, (req, res) => {
-  // In this app reservations are client-side; this endpoint only verifies auth.
   return res.json({ ok: true });
 });
 
