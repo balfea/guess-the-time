@@ -6,7 +6,7 @@ const app = express();
 // CORS configuration - allows requests from GitHub Pages
 app.use(cors({
   origin: [
-    'https://balfea.github.io', // Replace with your GitHub Pages URL
+    'https://balfea.github.io', // GitHub Pages URL
     'http://localhost:3000',
     'http://127.0.0.1:3000'
   ],
