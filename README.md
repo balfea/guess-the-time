@@ -37,6 +37,23 @@ Notes:
 - Keep `server.js` and your `.env` on the server (don't commit secrets).
 - Use `ADMIN_PASSWORD_HASH` with a bcrypt hash when possible. The README includes a command to generate the hash locally.
 
+## Enabling GitHub Pages
+
+To make the `time-grid-board.html` file accessible via GitHub Pages:
+
+1. Go to your repository Settings on GitHub
+2. Navigate to "Pages" in the left sidebar
+3. Under "Source", select "Deploy from a branch"
+4. Choose the `main` branch and `/ (root)` folder
+5. Click "Save"
+
+After a few moments, your site will be published at:
+https://balfea.github.io/guess-the-time/time-grid-board.html
+
+The HTML file is now available in both:
+- The `public/` folder (for local development with the Express server)
+- The root folder (for GitHub Pages deployment)
+
 ## Repository Protection
 
 This repository is protected with GitHub rulesets and code ownership rules to prevent unauthorized modifications.
