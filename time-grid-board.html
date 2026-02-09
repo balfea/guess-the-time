@@ -2,43 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess the Time</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <title>Time Grid Board</title>
 </head>
 <body>
     <h1>Guess the Time</h1>
-    <form id="timeGuessForm">
-        <label for="timeGuess">Enter your guess (HH:MM:SS):</label>
-        <input type="text" id="timeGuess" name="timeGuess" required>
-        <button type="submit">Submit</button>
+    <form action="https://guess-the-time.railway.app/login" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username">
+        <button type="submit">Login</button>
     </form>
-    <div id="result"></div>
 
-    <script>
-        // Fetching endpoints updated
-        const endpoints = {
-            login: 'https://guess-the-time.railway.app/login',
-            verify: 'https://guess-the-time.railway.app/verify',
-            reset: 'https://guess-the-time.railway.app/reset'
-        };
+    <form action="https://guess-the-time.railway.app/verify" method="post">
+        <label for="time">Time:</label>
+        <input type="text" id="time" name="time">
+        <button type="submit">Verify</button>
+    </form>
 
-        // Function to handle form submission
-        document.getElementById('timeGuessForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const timeGuess = document.getElementById('timeGuess').value;
-            fetch(endpoints.verify, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({guess: timeGuess})
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('result').textContent = data.result;
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
+    <form action="https://guess-the-time.railway.app/reset" method="post">
+        <button type="submit">Reset</button>
+    </form>
 </body>
 </html>
