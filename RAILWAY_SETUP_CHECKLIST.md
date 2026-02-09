@@ -82,10 +82,6 @@ Now connect GitHub Pages to your Railway backend:
    ```
 3. **Verify or update** with your actual Railway URL from Step 5
 4. Commit and push to GitHub:
-   ```javascript
-   ? 'https://guess-the-time-production.up.railway.app'
-   ```
-4. Commit and push to GitHub:
    ```bash
    git add time-grid-board.html
    git commit -m "Connect to Railway.com backend"
