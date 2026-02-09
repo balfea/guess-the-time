@@ -297,7 +297,7 @@
 <body>
     <div class="container">
         <header>
-            <img src="/oli.png" alt="Scout mascot Oli supporting the World Scout Jamboree">
+            <img src="oli.png" alt="Scout mascot Oli supporting the World Scout Jamboree">
             <h1>🎯 Guess Our Finish Times!</h1>
             <p class="subtitle">Support Oli on his journey to the World Scout Jamboree</p>
             <p>Pick when you think we'll finish the Dartford Half Marathon</p>
@@ -368,6 +368,32 @@
 
     <script>
         const STORAGE_KEY = 'timeGridReservations';
+        
+        // ============================================================================
+        // RAILWAY BACKEND CONFIGURATION
+        // ============================================================================
+        // Configure your Railway backend URL here:
+        // 
+        // Railway URLs typically follow one of these formats:
+        //   - https://<project-name>.up.railway.app
+        //   - https://<project-name>-production.up.railway.app
+        //   - Custom domain: https://your-domain.com
+        //
+        // To find your Railway URL:
+        //   1. Log in to https://railway.app/dashboard
+        //   2. Click on your project
+        //   3. Go to Settings > Domains
+        //   4. Copy the generated Railway URL
+        //
+        // NOTE: The backend must be deployed with ADMIN_PASSWORD_HASH and JWT_SECRET
+        // environment variables configured. See RAILWAY_DEPLOYMENT.md for details.
+        // ============================================================================
+        const RAILWAY_BACKEND_URL = 'https://guess-the-time.up.railway.app';
+        
+        // Determine which backend to use based on environment
+        const API_BASE_URL = window.location.hostname.includes('github.io') 
+            ? RAILWAY_BACKEND_URL  // Use Railway backend when on GitHub Pages
+            : '';  // Use same origin (localhost:3000) for local development
         let isAdminMode = false;
         let currentCell = null;
         let reservations = {};
@@ -567,7 +593,7 @@
         async function login() {
             const password = document.getElementById('passwordInput').value;
             try {
-                const res = await fetch('/login', {
+                const res = await fetch(`${API_BASE_URL}/login`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ password })
@@ -613,7 +639,7 @@
             const t = getStoredToken();
             if (!t) return;
             try {
-                const res = await fetch('/verify', { method: 'POST', headers: authHeader() });
+                const res = await fetch(`${API_BASE_URL}/verify`, { method: 'POST', headers: authHeader() });
                 const data = await res.json();
                 if (res.ok && data.ok) {
                     isAdminMode = true;
@@ -638,7 +664,7 @@
             }
 
             try {
-                const res = await fetch('/reset', {
+                const res = await fetch(`${API_BASE_URL}/reset`, {
                     method: 'POST',
                     headers: Object.assign({'Content-Type': 'application/json'}, authHeader())
                 });

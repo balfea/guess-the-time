@@ -368,14 +368,32 @@
 
     <script>
         const STORAGE_KEY = 'timeGridReservations';
-        // API_BASE_URL configuration for admin functionality
-        // For local development: leave empty (uses same origin)
-        // For GitHub Pages: set to your Railway.com deployed server URL
-        // Example: 'https://guess-the-time-production.up.railway.app'
-        // See RAILWAY_DEPLOYMENT.md for deployment instructions
+        
+        // ============================================================================
+        // RAILWAY BACKEND CONFIGURATION
+        // ============================================================================
+        // Configure your Railway backend URL here:
+        // 
+        // Railway URLs typically follow one of these formats:
+        //   - https://<project-name>.up.railway.app
+        //   - https://<project-name>-production.up.railway.app
+        //   - Custom domain: https://your-domain.com
+        //
+        // To find your Railway URL:
+        //   1. Log in to https://railway.app/dashboard
+        //   2. Click on your project
+        //   3. Go to Settings > Domains
+        //   4. Copy the generated Railway URL
+        //
+        // NOTE: The backend must be deployed with ADMIN_PASSWORD_HASH and JWT_SECRET
+        // environment variables configured. See RAILWAY_DEPLOYMENT.md for details.
+        // ============================================================================
+        const RAILWAY_BACKEND_URL = 'https://guess-the-time.up.railway.app';
+        
+        // Determine which backend to use based on environment
         const API_BASE_URL = window.location.hostname.includes('github.io') 
-            ? ''  // TODO: Set your Railway.com server URL here (e.g., 'https://your-app.up.railway.app')
-            : '';  // Empty for local development (uses same origin)
+            ? RAILWAY_BACKEND_URL  // Use Railway backend when on GitHub Pages
+            : '';  // Use same origin (localhost:3000) for local development
         let isAdminMode = false;
         let currentCell = null;
         let reservations = {};
