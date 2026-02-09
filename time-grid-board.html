@@ -368,10 +368,12 @@
 
     <script>
         const STORAGE_KEY = 'timeGridReservations';
-        // API_BASE_URL can be set to point to your server for admin functionality
-        // Leave empty for localhost development or set to your server URL for GitHub Pages
+        // API_BASE_URL configuration for admin functionality
+        // For local development: leave empty (uses same origin)
+        // For GitHub Pages: set to your deployed server URL (e.g., 'https://your-server.herokuapp.com')
+        // Note: Admin features require a running server with /login, /verify, and /reset endpoints
         const API_BASE_URL = window.location.hostname.includes('github.io') 
-            ? 'https://your-server-url.com'  // Replace with your actual server URL
+            ? ''  // TODO: Set your server URL here for GitHub Pages deployment
             : '';  // Empty for local development (uses same origin)
         let isAdminMode = false;
         let currentCell = null;
