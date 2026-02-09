@@ -1,0 +1,13 @@
+# CODEOWNERS file
+# This file defines code ownership for the repository
+# Only the repository owner can approve changes to any part of the codebase
+
+# Default owner for everything in the repo
+* @balfea
+
+# Critical configuration files require owner review
+/.github/ @balfea
+/package.json @balfea
+/package-lock.json @balfea
+/server.js @balfea
+/.env.example @balfea
