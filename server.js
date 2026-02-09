@@ -3,12 +3,13 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 
-// CORS configuration - allows requests from GitHub Pages
+// CORS configuration - allows requests from GitHub Pages and development
+// When deploying to Railway.com, this automatically allows requests from your GitHub Pages site
 app.use(cors({
   origin: [
     'https://balfea.github.io', // GitHub Pages URL
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://localhost:3000',     // Local development
+    'http://127.0.0.1:3000'      // Local development (alternative)
   ],
   credentials: true
 }));

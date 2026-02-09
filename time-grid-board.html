@@ -370,10 +370,11 @@
         const STORAGE_KEY = 'timeGridReservations';
         // API_BASE_URL configuration for admin functionality
         // For local development: leave empty (uses same origin)
-        // For GitHub Pages: set to your deployed server URL (e.g., 'https://your-server.herokuapp.com')
-        // Note: Admin features require a running server with /login, /verify, and /reset endpoints
+        // For GitHub Pages: set to your Railway.com deployed server URL
+        // Example: 'https://guess-the-time-production.up.railway.app'
+        // See RAILWAY_DEPLOYMENT.md for deployment instructions
         const API_BASE_URL = window.location.hostname.includes('github.io') 
-            ? ''  // TODO: Set your server URL here for GitHub Pages deployment
+            ? ''  // TODO: Set your Railway.com server URL here (e.g., 'https://your-app.up.railway.app')
             : '';  // Empty for local development (uses same origin)
         let isAdminMode = false;
         let currentCell = null;
