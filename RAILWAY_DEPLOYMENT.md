@@ -143,10 +143,14 @@ After deployment, set your environment variables:
 After deployment:
 
 1. Go to your Railway project dashboard
-2. Click on your service
-3. Go to "Settings" tab
-4. Under "Domains", you'll see your public URL
-5. Copy the URL (e.g., `https://guess-the-time-production.up.railway.app`)
+2. Click on your project **"illustrious-love"**
+3. Click on your service (the deployed application)
+4. **Check the top of the page** - your public URL should be displayed there
+5. If no URL appears:
+   - Go to the **"Settings"** tab
+   - Look for **"Networking"** or **"Public Networking"** section
+   - Click **"Generate Domain"** to create a public URL
+6. Copy the URL (e.g., `https://illustrious-love-production.up.railway.app`)
 
 ## Step 5: Update GitHub Pages Configuration
 
@@ -164,7 +168,7 @@ Now connect your GitHub Pages site to the Railway backend:
 2. **Replace with your Railway URL:**
    ```javascript
    const API_BASE_URL = window.location.hostname.includes('github.io') 
-       ? 'https://guess-the-time-production.up.railway.app'  // Your Railway URL
+       ? 'https://illustrious-love-production.up.railway.app'  // Your Railway URL
        : '';
    ```
 
