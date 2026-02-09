@@ -27,7 +27,11 @@ npm start
 
 4. Open in browser:
 
+Local development server:
 http://localhost:3000/time-grid-board.html
+
+GitHub Pages (when enabled):
+https://balfea.github.io/guess-the-time/time-grid-board.html
 
 Notes:
 - Keep `server.js` and your `.env` on the server (don't commit secrets).
