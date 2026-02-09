@@ -32,3 +32,11 @@ http://localhost:3000/time-grid-board.html
 Notes:
 - Keep `server.js` and your `.env` on the server (don't commit secrets).
 - Use `ADMIN_PASSWORD_HASH` with a bcrypt hash when possible. The README includes a command to generate the hash locally.
+
+## Repository Protection
+
+This repository is protected with GitHub rulesets and code ownership rules to prevent unauthorized modifications. See [`.github/SECURITY.md`](.github/SECURITY.md) for details on:
+- Branch protection rules
+- Code ownership configuration
+- How to set up repository protections
+- Security best practices
