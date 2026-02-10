@@ -463,42 +463,72 @@
             loadReservations();
         }
 
-        // Load reservations from storage (supports extension `window.storage` or localStorage)
+        // Load reservations from server
         async function loadReservations() {
             try {
-                if (window.storage && window.storage.get) {
-                    const result = await window.storage.get(STORAGE_KEY, true);
-                    if (result && result.value) {
-                        reservations = JSON.parse(result.value);
+                const res = await fetch(`${API_BASE_URL}/reservations`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok && data.reservations) {
+                        reservations = data.reservations;
                         updateGrid();
                         return;
                     }
                 }
-
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    reservations = JSON.parse(raw);
-                    updateGrid();
-                }
             } catch (error) {
-                console.log('No existing reservations found');
-                reservations = {};
+                console.error('Error loading reservations from server:', error);
             }
+            reservations = {};
+            updateGrid();
         }
 
-        // Save reservations to storage (supports extension `window.storage` or localStorage)
-        async function saveToStorage() {
+        // Save a single reservation to server (admin only)
+        async function saveReservationToServer(time, playerName) {
             try {
-                const payload = JSON.stringify(reservations);
-                if (window.storage && window.storage.set) {
-                    await window.storage.set(STORAGE_KEY, payload, true);
+                const res = await fetch(`${API_BASE_URL}/reservations`, {
+                    method: 'POST',
+                    headers: Object.assign({'Content-Type': 'application/json'}, authHeader()),
+                    body: JSON.stringify({ time, playerName })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok && data.reservations) {
+                        reservations = data.reservations;
+                        return true;
+                    }
                 } else {
-                    localStorage.setItem(STORAGE_KEY, payload);
+                    console.error('Failed to save reservation:', res.status);
                 }
             } catch (error) {
-                console.error('Error saving reservations:', error);
-                alert('Error saving reservation. Please try again.');
+                console.error('Error saving reservation to server:', error);
             }
+            alert('Error saving reservation. Please try again.');
+            return false;
+        }
+        
+        // Delete a reservation from server (admin only)
+        async function deleteReservationFromServer(time) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/reservations/${encodeURIComponent(time)}`, {
+                    method: 'DELETE',
+                    headers: authHeader()
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok && data.reservations) {
+                        reservations = data.reservations;
+                        return true;
+                    }
+                } else {
+                    console.error('Failed to delete reservation:', res.status);
+                }
+            } catch (error) {
+                console.error('Error deleting reservation from server:', error);
+            }
+            alert('Error deleting reservation. Please try again.');
+            return false;
         }
 
         // Update grid with current reservations
@@ -555,11 +585,11 @@
             }
 
             const time = currentCell.dataset.time;
-            reservations[time] = playerName;
             
-            await saveToStorage();
-            updateGrid();
-            closeModal('reserveModal');
+            if (await saveReservationToServer(time, playerName)) {
+                updateGrid();
+                closeModal('reserveModal');
+            }
         }
 
         // Remove reservation
@@ -569,11 +599,11 @@
             }
 
             const time = currentCell.dataset.time;
-            delete reservations[time];
             
-            await saveToStorage();
-            updateGrid();
-            closeModal('reserveModal');
+            if (await deleteReservationFromServer(time)) {
+                updateGrid();
+                closeModal('reserveModal');
+            }
         }
 
         // Auth helpers
@@ -673,7 +703,6 @@
                 const data = await res.json();
                 if (res.ok && data.ok) {
                     reservations = {};
-                    await saveToStorage();
                     updateGrid();
                 } else {
                     alert('Not authorized to reset. Please login as admin.');
