@@ -4,40 +4,25 @@ Quick dev server for GuessTheTime
 
 ## 🚀 Quick Start
 
-1. Install dependencies
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+2. **Configure environment** - Create `.env` file with admin password:
+   ```bash
+   cp .env.example .env
+   # Edit .env and set ADMIN_PASSWORD or generate a bcrypt hash for ADMIN_PASSWORD_HASH
+   ```
 
-2. Create a `.env` file (or export env vars) with a real admin password or hash:
+3. **Start the server**
+   ```bash
+   npm start
+   ```
 
-```bash
-cp .env.example .env
-# Option A (development): set ADMIN_PASSWORD in .env
-# Option B (recommended): generate a bcrypt hash and set ADMIN_PASSWORD_HASH
-# Example (generate hash locally):
-node -e "console.log(require('bcryptjs').hashSync(process.argv[1], 10))" your_password
-# then paste the generated string into ADMIN_PASSWORD_HASH in .env
-```
-
-3. Start the server
-
-```bash
-npm start
-```
-
-4. Open in browser:
-
-Local development server:
-http://localhost:3000/time-grid-board.html
-
-GitHub Pages (when enabled):
-https://balfea.github.io/guess-the-time/time-grid-board.html
-
-Notes:
-- Keep `server.js` and your `.env` on the server (don't commit secrets).
-- Use `ADMIN_PASSWORD_HASH` with a bcrypt hash when possible. The README includes a command to generate the hash locally.
+4. **Open in browser**
+   - Local: http://localhost:3000/time-grid-board.html
+   - GitHub Pages: https://balfea.github.io/guess-the-time/time-grid-board.html
 
 ## 🌐 Deployment
 
@@ -67,31 +52,19 @@ The setup checklist covers:
 
 ## Enabling GitHub Pages
 
-### Current Status
-⚠️ **Important**: The `time-grid-board.html` file has been added to this repository in Pull Request #5, but it's currently only on the feature branch. **The file will return a 404 error on GitHub Pages until PR #5 is merged into the `main` branch.**
+To enable GitHub Pages for this repository:
 
-### Steps to Fix the 404 Error
+1. Go to repository Settings → Pages
+2. Set Source to "Deploy from a branch"
+3. Select `main` branch and `/ (root)` folder
+4. Click "Save"
+5. Wait 1-2 minutes for deployment
 
-**Step 1: Merge the Pull Request**
-1. Go to [Pull Request #5](https://github.com/balfea/guess-the-time/pull/5)
-2. Review the changes (HTML file moved to root directory)
-3. Approve and merge the PR into `main`
+Your site will be published at: https://balfea.github.io/guess-the-time/time-grid-board.html
 
-**Step 2: Verify GitHub Pages Configuration**
-1. Go to your repository Settings on GitHub
-2. Navigate to "Pages" in the left sidebar
-3. Verify "Source" is set to "Deploy from a branch"
-4. Verify it's configured to use the `main` branch and `/ (root)` folder
-5. If not configured, select these options and click "Save"
-
-**Step 3: Wait for Deployment**
-- After merging, GitHub Pages will automatically rebuild (takes 1-2 minutes)
-- Your site will be published at: https://balfea.github.io/guess-the-time/time-grid-board.html
-
-### File Locations
-After the PR is merged, the HTML file will be available in both:
-- The `public/` folder (for local development with the Express server)
-- The root folder (for GitHub Pages deployment)
+**Note:** The HTML file is maintained in both locations:
+- `public/time-grid-board.html` - For local development with Express server
+- `time-grid-board.html` - For GitHub Pages deployment
 
 ## Repository Protection
 
