@@ -1,0 +1,120 @@
+name: Apply Branch Protection Rules
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/rulesets/branch-protection.json'
+
+permissions:
+  contents: read
+
+jobs:
+  apply-ruleset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for PAT Token
+        id: check_token
+        env:
+          PAT_TOKEN: ${{ secrets.BRANCH_PROTECTION_PAT }}
+        run: |
+          if [ -z "$PAT_TOKEN" ]; then
+            echo "has_pat=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_pat=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Apply Branch Protection Ruleset (with PAT)
+        if: steps.check_token.outputs.has_pat == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.BRANCH_PROTECTION_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "✅ Using PAT token to apply branch protection ruleset..."
+          echo "Repository: $REPO"
+          
+          # Read the ruleset configuration
+          RULESET_CONFIG=$(cat .github/rulesets/branch-protection.json)
+          
+          # Check if ruleset already exists
+          EXISTING_RULESETS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPO/rulesets")
+          
+          RULESET_ID=$(echo "$EXISTING_RULESETS" | jq -r '.[] | select(.name == "Main Branch Protection - Owner Only") | .id')
+          
+          if [ -n "$RULESET_ID" ] && [ "$RULESET_ID" != "null" ]; then
+            echo "📝 Ruleset already exists with ID: $RULESET_ID. Updating..."
+            
+            # Update existing ruleset
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/$REPO/rulesets/$RULESET_ID" \
+              -d "$RULESET_CONFIG")
+            
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Branch protection ruleset updated successfully!"
+            else
+              echo "❌ Failed to update ruleset. HTTP code: $HTTP_CODE"
+              echo "$RESPONSE" | head -n-1
+              exit 1
+            fi
+          else
+            echo "📝 Creating new branch protection ruleset..."
+            
+            # Create new ruleset
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/$REPO/rulesets" \
+              -d "$RULESET_CONFIG")
+            
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            if [ "$HTTP_CODE" = "201" ]; then
+              echo "✅ Branch protection ruleset created successfully!"
+            else
+              echo "❌ Failed to create ruleset. HTTP code: $HTTP_CODE"
+              echo "$RESPONSE" | head -n-1
+              exit 1
+            fi
+          fi
+          
+          # Verify the ruleset was applied
+          echo ""
+          echo "📋 Current rulesets:"
+          curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPO/rulesets" | jq -r '.[] | "  - \(.name) (ID: \(.id), Enforcement: \(.enforcement))"'
+
+      - name: Instructions (no PAT)
+        if: steps.check_token.outputs.has_pat == 'false'
+        run: |
+          echo "⚠️  No PAT token found. Cannot apply branch protection via API."
+          echo ""
+          echo "You have two options to enable branch protection:"
+          echo ""
+          echo "📌 Option 1: Manual Setup (Recommended - Takes 2 minutes)"
+          echo "   1. Go to: https://github.com/${{ github.repository }}/settings/rules"
+          echo "   2. Click 'New ruleset' → 'New branch ruleset'"
+          echo "   3. Use the settings from: .github/rulesets/branch-protection.json"
+          echo "   4. See detailed instructions in: .github/BRANCH_PROTECTION_SETUP.md"
+          echo ""
+          echo "📌 Option 2: Automate with a PAT Token"
+          echo "   1. Create a fine-grained PAT with 'Administration: read and write' permission"
+          echo "   2. Go to: https://github.com/settings/tokens?type=beta"
+          echo "   3. Generate token with repository access and 'Administration' permission"
+          echo "   4. Add it as a repository secret named: BRANCH_PROTECTION_PAT"
+          echo "   5. Re-run this workflow"
+          echo ""
+          echo "📖 For more details, see: .github/rulesets/README.md"

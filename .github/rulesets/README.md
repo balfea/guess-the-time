@@ -20,9 +20,27 @@ This ruleset protects the main branches (`main` and `master`) with the following
 
 ## How to Apply These Rulesets
 
-GitHub rulesets need to be configured through the GitHub web interface. While this JSON file serves as a reference configuration, you need to manually create the ruleset in GitHub:
+GitHub rulesets can be applied automatically using the GitHub Actions workflow or manually through the web interface.
 
-### Method 1: Via GitHub Web UI (Recommended)
+### Method 1: Automated via GitHub Actions (Recommended)
+
+The easiest way to apply branch protection is to use the included GitHub Actions workflow:
+
+1. Go to your repository on GitHub (https://github.com/balfea/guess-the-time)
+2. Navigate to **Actions** tab
+3. Click on **Apply Branch Protection Rules** workflow in the left sidebar
+4. Click **Run workflow** → Select `main` branch → Click **Run workflow**
+5. Wait for the workflow to complete (usually takes less than a minute)
+6. The branch protection ruleset will be automatically applied!
+
+The workflow will:
+- Read the configuration from `.github/rulesets/branch-protection.json`
+- Create or update the ruleset via GitHub API
+- Verify the ruleset was applied successfully
+
+**Note:** This workflow also runs automatically whenever you push changes to `branch-protection.json`, so the ruleset stays in sync with your configuration file.
+
+### Method 2: Manual via GitHub Web UI
 
 1. Go to your repository on GitHub (e.g., https://github.com/balfea/guess-the-time)
 2. Click on **Settings**
@@ -50,7 +68,7 @@ GitHub rulesets need to be configured through the GitHub web interface. While th
 
 6. Click **Create** to save the ruleset
 
-### Method 2: Via GitHub API
+### Method 3: Via GitHub API
 
 You can also use the GitHub API to create rulesets programmatically. However, this requires a personal access token with appropriate permissions.
 

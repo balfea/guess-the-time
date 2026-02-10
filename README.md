@@ -95,10 +95,13 @@ After the PR is merged, the HTML file will be available in both:
 
 ## Repository Protection
 
+⚠️ **IMPORTANT:** If you see a warning "Your main branch isn't protected", follow the **[Branch Protection Setup Guide](.github/BRANCH_PROTECTION_SETUP.md)** to enable it in 2 minutes via GitHub Actions.
+
 This repository is protected with GitHub rulesets and code ownership rules to prevent unauthorized modifications.
 
 ### 🚀 Quick Setup Guides
 
+- **[🛡️ Branch Protection Setup](.github/BRANCH_PROTECTION_SETUP.md)** - **START HERE** to enable branch protection
 - **[Quick Start](.github/QUICKSTART.md)** - 5-minute fast track setup
 - **[Complete Setup Guide](.github/SETUP_GUIDE.md)** - Detailed step-by-step instructions
 - **[Setup Checklist](.github/CHECKLIST.md)** - Track your progress
