@@ -755,9 +755,14 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ password })
                 });
-                const loginData = await loginRes.json();
                 
-                if (!loginRes.ok || !loginData.ok) {
+                if (!loginRes.ok) {
+                    alert('Incorrect password. Reset cancelled.');
+                    return;
+                }
+                
+                const loginData = await loginRes.json();
+                if (!loginData.ok) {
                     alert('Incorrect password. Reset cancelled.');
                     return;
                 }
@@ -772,6 +777,7 @@
                     reservations = {};
                     updateGrid();
                     closeModal('resetConfirmModal');
+                    document.getElementById('resetPasswordInput').value = '';
                     alert('All reservations have been reset successfully.');
                 } else {
                     alert('Not authorized to reset. Please login as admin.');
