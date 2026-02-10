@@ -395,6 +395,22 @@
         </div>
     </div>
 
+    <!-- Reset Confirmation Modal -->
+    <div id="resetConfirmModal" class="modal">
+        <div class="modal-content">
+            <h2>Confirm Reset All</h2>
+            <p style="color: #dc2626; margin-bottom: 15px; font-weight: 600;">⚠️ This will delete ALL reservations. This action cannot be undone!</p>
+            <div class="form-group">
+                <label for="resetPasswordInput">Enter Admin Password to Confirm</label>
+                <input type="password" id="resetPasswordInput" placeholder="Enter admin password">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="confirmReset()">Reset All</button>
+                <button class="btn" onclick="closeModal('resetConfirmModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const STORAGE_KEY = 'timeGridReservations';
         
@@ -719,12 +735,34 @@
         })();
 
         // Reset all reservations (protected)
-        document.getElementById('resetBtn').addEventListener('click', async () => {
-            if (!confirm('Are you sure you want to reset ALL reservations? This cannot be undone!')) {
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            openModal('resetConfirmModal');
+            document.getElementById('resetPasswordInput').value = '';
+        });
+
+        // Confirm reset with password verification
+        async function confirmReset() {
+            const password = document.getElementById('resetPasswordInput').value;
+            if (!password) {
+                alert('Please enter the admin password to confirm reset.');
                 return;
             }
 
             try {
+                // Verify password by calling login endpoint
+                const loginRes = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ password })
+                });
+                const loginData = await loginRes.json();
+                
+                if (!loginRes.ok || !loginData.ok) {
+                    alert('Incorrect password. Reset cancelled.');
+                    return;
+                }
+
+                // Password verified, proceed with reset
                 const res = await fetch(`${API_BASE_URL}/reset`, {
                     method: 'POST',
                     headers: Object.assign({'Content-Type': 'application/json'}, authHeader())
@@ -733,6 +771,8 @@
                 if (res.ok && data.ok) {
                     reservations = {};
                     updateGrid();
+                    closeModal('resetConfirmModal');
+                    alert('All reservations have been reset successfully.');
                 } else {
                     alert('Not authorized to reset. Please login as admin.');
                 }
@@ -740,7 +780,7 @@
                 console.error(err);
                 alert('Reset failed. Is the server running?');
             }
-        });
+        }
 
         // Modal functions
         function openModal(modalId) {
@@ -769,6 +809,10 @@
 
         document.getElementById('playerName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') saveReservation();
+        });
+
+        document.getElementById('resetPasswordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') confirmReset();
         });
 
         // Initialize on load
