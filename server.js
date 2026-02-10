@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 const app = express();
 
@@ -18,6 +20,9 @@ app.use(express.json());
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+
+// Path to store reservations
+const RESERVATIONS_FILE = path.join(__dirname, 'reservations.json');
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
@@ -76,8 +81,78 @@ app.post('/verify', (req, res) => {
   }
 });
 
+// Helper functions for reading/writing reservations
+function readReservations() {
+  try {
+    if (fs.existsSync(RESERVATIONS_FILE)) {
+      const data = fs.readFileSync(RESERVATIONS_FILE, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error('Error reading reservations:', err);
+  }
+  return {};
+}
+
+function writeReservations(reservations) {
+  try {
+    fs.writeFileSync(RESERVATIONS_FILE, JSON.stringify(reservations, null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    console.error('Error writing reservations:', err);
+    return false;
+  }
+}
+
+// GET /reservations - Get all reservations (public endpoint)
+app.get('/reservations', (req, res) => {
+  const reservations = readReservations();
+  return res.json({ ok: true, reservations });
+});
+
+// POST /reservations - Save/update a reservation (admin only)
+app.post('/reservations', requireAuth, (req, res) => {
+  const { time, playerName } = req.body;
+  
+  if (!time) {
+    return res.status(400).json({ ok: false, error: 'time is required' });
+  }
+  
+  const reservations = readReservations();
+  
+  if (playerName && playerName.trim()) {
+    reservations[time] = playerName.trim();
+  } else {
+    delete reservations[time];
+  }
+  
+  if (writeReservations(reservations)) {
+    return res.json({ ok: true, reservations });
+  } else {
+    return res.status(500).json({ ok: false, error: 'failed to save reservation' });
+  }
+});
+
+// DELETE /reservations/:time - Delete a reservation (admin only)
+app.delete('/reservations/:time', requireAuth, (req, res) => {
+  const { time } = req.params;
+  
+  const reservations = readReservations();
+  delete reservations[time];
+  
+  if (writeReservations(reservations)) {
+    return res.json({ ok: true, reservations });
+  } else {
+    return res.status(500).json({ ok: false, error: 'failed to delete reservation' });
+  }
+});
+
 app.post('/reset', requireAuth, (req, res) => {
-  return res.json({ ok: true });
+  if (writeReservations({})) {
+    return res.json({ ok: true });
+  } else {
+    return res.status(500).json({ ok: false, error: 'failed to reset reservations' });
+  }
 });
 
 app.use(express.static('public'));
