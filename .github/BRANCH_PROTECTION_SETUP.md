@@ -109,9 +109,9 @@ After setup, verify your branch is protected:
 ## 📚 More Information
 
 For detailed documentation on the branch protection configuration, see:
-- [Ruleset Configuration Details](.github/rulesets/README.md)
-- [Branch Protection JSON](.github/rulesets/branch-protection.json)
+- [Ruleset Configuration Details](rulesets/README.md)
+- [Branch Protection JSON](rulesets/branch-protection.json)
 
 ---
 
-**Questions?** Check the [Security Documentation](.github/SECURITY.md) or open an issue.
+**Questions?** Check the [Security Documentation](SECURITY.md) or open an issue.
