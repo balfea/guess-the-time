@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess Our Finish Times - Dartford Half Marathon</title>
-    <meta name="description" content="Support Oli on his journey to the World Scout Jamboree 
-        We're running the Dartford Half Marathon on 22nd of February - Pick our combined finish time to win £10 (or £20 if +50 boxes are sold
-        Contact Tracy or Andy via Facebook or WhatsApp to reserve your time. Donate £2 per box">
+    <meta name="description" content="Support Oli on his journey to the World Scout Jamboree. Pick when you think we'll finish the Dartford Half Marathon!">
     <style>
         * {
             margin: 0;
@@ -33,26 +31,6 @@
         header {
             text-align: center;
             margin-bottom: 30px;
-        }
-
-        .info-box {
-            background: #f0f9ff;
-            border: 2px solid #3b82f6;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .info-box p {
-            color: #1e40af;
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin: 8px 0;
-        }
-
-        .info-box strong {
-            color: #1e3a8a;
         }
 
         h1 {
@@ -300,15 +278,6 @@
             flex: 1;
         }
 
-        .footer-text {
-            margin-top: 30px;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-            line-height: 1.6;
-        }
-
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -328,18 +297,11 @@
 <body>
     <div class="container">
         <header>
-            <img src="oli_sweepstake.png" alt="Scout mascot Oli supporting the World Scout Jamboree">
+            <img src="oli.png" alt="Scout mascot Oli supporting the World Scout Jamboree">
             <h1>🎯 Guess Our Finish Times!</h1>
             <p class="subtitle">Support Oli on his journey to the World Scout Jamboree</p>
-            <p>Pick our combined finish times* for the Dartford Half Marathon</p>
+            <p>Pick when you think we'll finish the Dartford Half Marathon</p>
         </header>
-
-        <div class="info-box">
-            <p><strong>🏃 Event:</strong> Dartford Half Marathon on 22nd of February</p>
-            <p><strong>🎯 Prize:</strong> Win £20!</p>
-            <p><strong>📞 Contact:</strong> Tracy or Andy via Facebook or WhatsApp to reserve your time</p>
-            <p><strong>💷 Donation:</strong> £2 per box**</p>
-        </div>
 
         <div class="controls">
             <div class="admin-toggle">
@@ -369,10 +331,6 @@
                 <div class="stat-number" id="availableSquares">0</div>
                 <div class="stat-label">Available</div>
             </div>
-        </div>
-
-        <div class="footer-text">
-            <p>*The combined time is based on the official chip times.. **You can pay in person or via bank transfer.</p>
         </div>
     </div>
 
@@ -404,22 +362,6 @@
                 <button class="btn btn-success" onclick="saveReservation()">Save</button>
                 <button class="btn btn-danger" id="removeBtn" onclick="removeReservation()" style="display: none;">Remove</button>
                 <button class="btn" onclick="closeModal('reserveModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reset Confirmation Modal -->
-    <div id="resetConfirmModal" class="modal">
-        <div class="modal-content">
-            <h2>Confirm Reset All</h2>
-            <p style="color: #dc2626; margin-bottom: 15px; font-weight: 600;">⚠️ This will delete ALL reservations. This action cannot be undone!</p>
-            <div class="form-group">
-                <label for="resetPasswordInput">Enter Admin Password to Confirm</label>
-                <input type="password" id="resetPasswordInput" placeholder="Enter admin password">
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-danger" onclick="confirmReset()">Reset All</button>
-                <button class="btn" onclick="closeModal('resetConfirmModal')">Cancel</button>
             </div>
         </div>
     </div>
@@ -748,39 +690,12 @@
         })();
 
         // Reset all reservations (protected)
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            openModal('resetConfirmModal');
-            document.getElementById('resetPasswordInput').value = '';
-        });
-
-        // Confirm reset with password verification
-        async function confirmReset() {
-            const password = document.getElementById('resetPasswordInput').value;
-            if (!password) {
-                alert('Please enter the admin password to confirm reset.');
+        document.getElementById('resetBtn').addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to reset ALL reservations? This cannot be undone!')) {
                 return;
             }
 
             try {
-                // Verify password by calling login endpoint
-                const loginRes = await fetch(`${API_BASE_URL}/login`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ password })
-                });
-                
-                if (!loginRes.ok) {
-                    alert('Incorrect password. Reset cancelled.');
-                    return;
-                }
-                
-                const loginData = await loginRes.json();
-                if (!loginData.ok) {
-                    alert('Incorrect password. Reset cancelled.');
-                    return;
-                }
-
-                // Password verified, proceed with reset
                 const res = await fetch(`${API_BASE_URL}/reset`, {
                     method: 'POST',
                     headers: Object.assign({'Content-Type': 'application/json'}, authHeader())
@@ -789,9 +704,6 @@
                 if (res.ok && data.ok) {
                     reservations = {};
                     updateGrid();
-                    closeModal('resetConfirmModal');
-                    document.getElementById('resetPasswordInput').value = '';
-                    alert('All reservations have been reset successfully.');
                 } else {
                     alert('Not authorized to reset. Please login as admin.');
                 }
@@ -799,7 +711,7 @@
                 console.error(err);
                 alert('Reset failed. Is the server running?');
             }
-        }
+        });
 
         // Modal functions
         function openModal(modalId) {
@@ -828,10 +740,6 @@
 
         document.getElementById('playerName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') saveReservation();
-        });
-
-        document.getElementById('resetPasswordInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') confirmReset();
         });
 
         // Initialize on load
