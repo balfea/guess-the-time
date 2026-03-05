@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[TEST] Guess Our Finish Times - Dartford Half Marathon</title>
+    <meta name="description" content="TEST VERSION - Support Oli on his journey to the World Scout Jamboree. Pick when you think we'll finish the Dartford Half Marathon!">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .test-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: #e53e3e;
+            color: white;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 0.95em;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .test-banner a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        body.has-test-banner {
+            padding-top: 40px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-box p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .admin-toggle {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .admin-indicator {
+            padding: 8px 16px;
+            background: #fbbf24;
+            color: #78350f;
+            border-radius: 6px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .admin-indicator.active {
+            display: block;
+        }
+
+        .grid-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            min-width: 800px;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+        }
+
+        .grid-cell:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .grid-cell.reserved {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .grid-cell.admin-mode {
+            cursor: pointer;
+        }
+
+        .grid-cell.admin-mode:not(.reserved):hover {
+            background: #f3f4f6;
+        }
+
+        .time {
+            font-size: 0.7em;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .player-name {
+            font-size: 0.9em;
+            font-weight: 500;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: #666;
+        }
+
+        header img {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+
+        .footnotes {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .footnotes p {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="has-test-banner">
+    <div class="test-banner">
+        ⚠️ TEST PAGE — Changes here are for testing only and do not affect the <a href="time-grid-board.html">live production page</a>.
+    </div>
+    <div class="container">
+        <header>
+            <img src="oli_sweepstake.png" alt="Scout mascot Oli supporting the World Scout Jamboree">
+            <h1>🎯 Guess Our Finish Times!</h1>
+            <p class="subtitle">Support Oli on his journey to the World Scout Jamboree</p>
+            <p>Pick the combined time* when you think we'll finish the Dartford Half Marathon</p>
+            
+            <div class="info-box">
+                <p><strong>Event:</strong> Dartford Half Marathon on 22 February 2026</p>
+                <p><strong>Prize:</strong> Win £20</p>
+                <p><strong>Contact:</strong> Tracy or Andy via Facebook or WhatsApp to reserve your time</p>
+                <p><strong>Donation:</strong> £2 per time**</p>
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="admin-toggle">
+                <button id="adminBtn" class="btn btn-primary">Admin Login</button>
+                <button id="logoutBtn" class="btn btn-danger" style="display: none;">Logout</button>
+                <div id="adminIndicator" class="admin-indicator">Admin Mode Active</div>
+            </div>
+            <div>
+                <button id="resetBtn" class="btn btn-danger" style="display: none;">Reset All</button>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div id="grid" class="grid"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalSquares">0</div>
+                <div class="stat-label">Total Squares</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="reservedSquares">0</div>
+                <div class="stat-label">Reserved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="availableSquares">0</div>
+                <div class="stat-label">Available</div>
+            </div>
+        </div>
+
+        <div class="footnotes">
+            <p>*Combined time is based on official chip time.</p>
+            <p>**Contact either Tracy or Andy to pay in person or bank transfer.</p>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Admin Login</h2>
+            <div class="form-group">
+                <label for="passwordInput">Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter admin password">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="login()">Login</button>
+                <button class="btn" onclick="closeModal('loginModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reserve Square Modal -->
+    <div id="reserveModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Reserve Square</h2>
+            <p id="modalTime" style="color: #666; margin-bottom: 15px;"></p>
+            <div class="form-group">
+                <label for="playerName">Player Name</label>
+                <input type="text" id="playerName" placeholder="Enter player name">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="saveReservation()">Save</button>
+                <button class="btn btn-danger" id="removeBtn" onclick="removeReservation()" style="display: none;">Remove</button>
+                <button class="btn" onclick="closeModal('reserveModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'timeGridReservations';
+        
+        // ============================================================================
+        // RAILWAY BACKEND CONFIGURATION
+        // ============================================================================
+        // Configure your Railway backend URL here:
+        // 
+        // Railway URLs typically follow one of these formats:
+        //   - https://<project-name>.up.railway.app
+        //   - https://<project-name>-production.up.railway.app
+        //   - Custom domain: https://your-domain.com
+        //
+        // To find your Railway URL:
+        //   1. Log in to https://railway.app/dashboard
+        //   2. Click on your project (in this case: "illustrious-love")
+        //   3. Click on your service (usually named after your repo)
+        //   4. Look at the top of the page for the public URL
+        //   5. If no URL is shown, go to Settings tab and look for "Networking" or 
+        //      "Public Networking" section - click "Generate Domain" if needed
+        //
+        // NOTE: The backend must be deployed with ADMIN_PASSWORD_HASH and JWT_SECRET
+        // environment variables configured. See RAILWAY_DEPLOYMENT.md for details.
+        // ============================================================================
+        const RAILWAY_BACKEND_URL = 'https://guess-the-time-production.up.railway.app';
+        
+        // Determine which backend to use based on environment
+        const API_BASE_URL = window.location.hostname.includes('github.io') 
+            ? RAILWAY_BACKEND_URL  // Use Railway backend when on GitHub Pages
+            : '';  // Use same origin (localhost:3000) for local development
+        let isAdminMode = false;
+        let currentCell = null;
+        let reservations = {};
+
+        // Generate time slots starting from 4:20:00 in 15-second intervals
+        function generateTimeSlots() {
+            const slots = [];
+            const startSeconds = (4 * 60 + 20) * 60; // 4h 20m 00s in seconds
+            const intervalSeconds = 15;
+            const numSlots = 100; // Generate 100 time slots
+
+            for (let i = 0; i < numSlots; i++) {
+                const startTime = startSeconds + (i * intervalSeconds);
+                const endTime = startTime + (intervalSeconds - 1);
+                
+                const formatTime = (totalSecs) => {
+                    const hours = Math.floor(totalSecs / 3600);
+                    const minutes = Math.floor((totalSecs % 3600) / 60);
+                    const seconds = totalSecs % 60;
+                    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                };
+                
+                const timeRange = `${formatTime(startTime)}-${formatTime(endTime)}`;
+                slots.push({ number: i + 1, timeRange, startTime: formatTime(startTime) });
+            }
+
+            return slots;
+        }
+
+        // Initialize the grid
+        function initGrid() {
+            const grid = document.getElementById('grid');
+            const timeSlots = generateTimeSlots();
+            
+            grid.innerHTML = '';
+            
+            timeSlots.forEach(slot => {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.dataset.time = slot.startTime;
+                cell.dataset.timerange = slot.timeRange;
+                cell.dataset.number = slot.number;
+                
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'cell-number';
+                numberDiv.textContent = slot.number;
+                
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'time';
+                timeDiv.textContent = slot.timeRange;
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'player-name';
+                
+                cell.appendChild(numberDiv);
+                cell.appendChild(timeDiv);
+                cell.appendChild(nameDiv);
+                
+                cell.addEventListener('click', () => handleCellClick(cell));
+                
+                grid.appendChild(cell);
+            });
+
+            updateStats();
+            loadReservations();
+        }
+
+        // Load reservations from server
+        async function loadReservations() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/reservations`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok && data.reservations) {
+                        reservations = data.reservations;
+                        updateGrid();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading reservations from server:', error);
+            }
+            reservations = {};
+            updateGrid();
+        }
+
+        // Save a single reservation to server (admin only)
+        async function saveReservationToServer(time, playerName) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/reservations`, {
+                    method: 'POST',
+                    headers: Object.assign({'Content-Type': 'application/json'}, authHeader()),
+                    body: JSON.stringify({ time, playerName })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok && data.reservations) {
+                        reservations = data.reservations;
+                        return true;
+                    }
+                } else {
+                    console.error('Failed to save reservation:', res.status);
+                }
+            } catch (error) {
+                console.error('Error saving reservation to server:', error);
+            }
+            alert('Error saving reservation. Please try again.');
+            return false;
+        }
+        
+        // Delete a reservation from server (admin only)
+        async function deleteReservationFromServer(time) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/reservations/${encodeURIComponent(time)}`, {
+                    method: 'DELETE',
+                    headers: authHeader()
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok && data.reservations) {
+                        reservations = data.reservations;
+                        return true;
+                    }
+                } else {
+                    console.error('Failed to delete reservation:', res.status);
+                }
+            } catch (error) {
+                console.error('Error deleting reservation from server:', error);
+            }
+            alert('Error deleting reservation. Please try again.');
+            return false;
+        }
+
+        // Update grid with current reservations
+        function updateGrid() {
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(cell => {
+                const time = cell.dataset.time;
+                const nameDiv = cell.querySelector('.player-name');
+                
+                if (reservations[time]) {
+                    cell.classList.add('reserved');
+                    nameDiv.textContent = reservations[time];
+                } else {
+                    cell.classList.remove('reserved');
+                    nameDiv.textContent = '';
+                }
+
+                if (isAdminMode) {
+                    cell.classList.add('admin-mode');
+                } else {
+                    cell.classList.remove('admin-mode');
+                }
+            });
+
+            updateStats();
+        }
+
+        // Handle cell click
+        function handleCellClick(cell) {
+            if (!isAdminMode) return;
+
+            currentCell = cell;
+            const time = cell.dataset.time;
+            const timeRange = cell.dataset.timerange;
+            const cellNumber = cell.dataset.number;
+            const playerName = reservations[time] || '';
+
+            document.getElementById('modalTitle').textContent = 
+                playerName ? 'Edit Reservation' : 'Reserve Square';
+            document.getElementById('modalTime').textContent = `Cell #${cellNumber}: ${timeRange}`;
+            document.getElementById('playerName').value = playerName;
+            document.getElementById('removeBtn').style.display = 
+                playerName ? 'block' : 'none';
+
+            openModal('reserveModal');
+        }
+
+        // Save reservation
+        async function saveReservation() {
+            const playerName = document.getElementById('playerName').value.trim();
+            if (!playerName) {
+                alert('Please enter a player name');
+                return;
+            }
+
+            const time = currentCell.dataset.time;
+            
+            if (await saveReservationToServer(time, playerName)) {
+                updateGrid();
+                closeModal('reserveModal');
+            }
+        }
+
+        // Remove reservation
+        async function removeReservation() {
+            if (!confirm('Are you sure you want to remove this reservation?')) {
+                return;
+            }
+
+            const time = currentCell.dataset.time;
+            
+            if (await deleteReservationFromServer(time)) {
+                updateGrid();
+                closeModal('reserveModal');
+            }
+        }
+
+        // Auth helpers
+        function getStoredToken() {
+            return localStorage.getItem('admin_token');
+        }
+
+        function setStoredToken(token) {
+            if (token) localStorage.setItem('admin_token', token);
+            else localStorage.removeItem('admin_token');
+        }
+
+        function authHeader() {
+            const t = getStoredToken();
+            return t ? { 'Authorization': `Bearer ${t}` } : {};
+        }
+
+        // Admin login (calls server /login endpoint)
+        async function login() {
+            const password = document.getElementById('passwordInput').value;
+            try {
+                const res = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    setStoredToken(data.token);
+                    isAdminMode = true;
+                    document.getElementById('adminBtn').style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'block';
+                    document.getElementById('resetBtn').style.display = 'block';
+                    document.getElementById('adminIndicator').classList.add('active');
+                    updateGrid();
+                    closeModal('loginModal');
+                    document.getElementById('passwordInput').value = '';
+                } else {
+                    alert('Incorrect password');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Login failed. Is the server running?');
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            setStoredToken(null);
+            isAdminMode = false;
+            document.getElementById('adminBtn').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('adminIndicator').classList.remove('active');
+            updateGrid();
+        });
+
+        // Show admin login modal
+        document.getElementById('adminBtn').addEventListener('click', () => {
+            openModal('loginModal');
+        });
+
+        // on load, verify token and enable admin UI if valid
+        (async function checkToken() {
+            const t = getStoredToken();
+            if (!t) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/verify`, { method: 'POST', headers: authHeader() });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    isAdminMode = true;
+                    document.getElementById('adminBtn').style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'block';
+                    document.getElementById('resetBtn').style.display = 'block';
+                    document.getElementById('adminIndicator').classList.add('active');
+                    updateGrid();
+                } else {
+                    setStoredToken(null);
+                }
+            } catch (err) {
+                console.error('Token verify failed', err);
+                setStoredToken(null);
+            }
+        })();
+
+        // Reset all reservations (protected)
+        document.getElementById('resetBtn').addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to reset ALL reservations? This cannot be undone!')) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/reset`, {
+                    method: 'POST',
+                    headers: Object.assign({'Content-Type': 'application/json'}, authHeader())
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    reservations = {};
+                    updateGrid();
+                } else {
+                    alert('Not authorized to reset. Please login as admin.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Reset failed. Is the server running?');
+            }
+        });
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = document.querySelectorAll('.grid-cell').length;
+            const reserved = Object.keys(reservations).length;
+            const available = total - reserved;
+
+            document.getElementById('totalSquares').textContent = total;
+            document.getElementById('reservedSquares').textContent = reserved;
+            document.getElementById('availableSquares').textContent = available;
+        }
+
+        // Enter key support for modals
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+
+        document.getElementById('playerName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') saveReservation();
+        });
+
+        // Initialize on load
+        initGrid();
+    </script>
+</body>
+</html>
