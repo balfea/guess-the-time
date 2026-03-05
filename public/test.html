@@ -535,7 +535,7 @@
             loadReservations();
         }
 
-        // Load reservations from server
+        // Load reservations from server, with static-file fallback
         async function loadReservations() {
             try {
                 const res = await fetch(`${API_BASE_URL}/reservations`);
@@ -549,6 +549,18 @@
                 }
             } catch (error) {
                 console.error('Error loading reservations from server:', error);
+            }
+            // Fallback: load from static reservations.json when server is unreachable
+            try {
+                const res = await fetch('./reservations.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    reservations = data;
+                    updateGrid();
+                    return;
+                }
+            } catch (error) {
+                console.error('Error loading static reservations:', error);
             }
             reservations = {};
             updateGrid();
