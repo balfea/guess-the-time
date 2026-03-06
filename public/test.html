@@ -377,6 +377,7 @@
                 <div id="adminIndicator" class="admin-indicator">Admin Mode Active</div>
             </div>
             <div>
+                <button id="logsBtn" class="btn btn-primary" style="display: none;">View Logs</button>
                 <button id="resetBtn" class="btn btn-danger" style="display: none;">Reset All</button>
             </div>
         </div>
@@ -417,6 +418,18 @@
             <div class="modal-actions">
                 <button class="btn btn-primary" onclick="login()">Login</button>
                 <button class="btn" onclick="closeModal('loginModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Modal -->
+    <div id="logsModal" class="modal">
+        <div class="modal-content" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+            <h2>Entry Log</h2>
+            <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">Shows when each cell was last populated. Only available when the Postgres database is connected.</p>
+            <div id="logsContent" style="font-family: monospace; font-size: 0.85em;"></div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal('logsModal')">Close</button>
             </div>
         </div>
     </div>
@@ -535,7 +548,7 @@
             loadReservations();
         }
 
-        // Load reservations from server
+        // Load reservations from server, with static-file fallback
         async function loadReservations() {
             try {
                 const res = await fetch(`${API_BASE_URL}/reservations`);
@@ -549,6 +562,18 @@
                 }
             } catch (error) {
                 console.error('Error loading reservations from server:', error);
+            }
+            // Fallback: load from static reservations.json when server is unreachable
+            try {
+                const res = await fetch('./reservations.json');
+                if (res.ok) {
+                    const data = await res.json();
+                    reservations = data;
+                    updateGrid();
+                    return;
+                }
+            } catch (error) {
+                console.error('Error loading static reservations:', error);
             }
             reservations = {};
             updateGrid();
@@ -708,6 +733,7 @@
                     isAdminMode = true;
                     document.getElementById('adminBtn').style.display = 'none';
                     document.getElementById('logoutBtn').style.display = 'block';
+                    document.getElementById('logsBtn').style.display = 'block';
                     document.getElementById('resetBtn').style.display = 'block';
                     document.getElementById('adminIndicator').classList.add('active');
                     updateGrid();
@@ -728,6 +754,7 @@
             isAdminMode = false;
             document.getElementById('adminBtn').style.display = 'block';
             document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('logsBtn').style.display = 'none';
             document.getElementById('resetBtn').style.display = 'none';
             document.getElementById('adminIndicator').classList.remove('active');
             updateGrid();
@@ -749,6 +776,7 @@
                     isAdminMode = true;
                     document.getElementById('adminBtn').style.display = 'none';
                     document.getElementById('logoutBtn').style.display = 'block';
+                    document.getElementById('logsBtn').style.display = 'block';
                     document.getElementById('resetBtn').style.display = 'block';
                     document.getElementById('adminIndicator').classList.add('active');
                     updateGrid();
@@ -760,6 +788,39 @@
                 setStoredToken(null);
             }
         })();
+
+        // View Logs (admin only — shows reservation entry log from Postgres)
+        document.getElementById('logsBtn').addEventListener('click', async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/logs`, { headers: authHeader() });
+                const data = await res.json();
+                const container = document.getElementById('logsContent');
+                if (!res.ok) {
+                    container.textContent = 'Failed to load logs.';
+                } else if (!data.logs || data.logs.length === 0) {
+                    container.textContent = data.message || 'No log entries found. Logs are recorded once Postgres is connected.';
+                } else {
+                    container.innerHTML = '<table style="width:100%;border-collapse:collapse">'
+                        + '<tr style="background:#f0f0f0"><th style="text-align:left;padding:4px 8px">Time</th>'
+                        + '<th style="text-align:left;padding:4px 8px">Name</th>'
+                        + '<th style="text-align:left;padding:4px 8px">Action</th>'
+                        + '<th style="text-align:left;padding:4px 8px">When</th></tr>'
+                        + data.logs.map(r =>
+                            `<tr style="border-bottom:1px solid #eee">`
+                            + `<td style="padding:4px 8px">${r.time}</td>`
+                            + `<td style="padding:4px 8px">${r.player_name || '—'}</td>`
+                            + `<td style="padding:4px 8px">${r.action}</td>`
+                            + `<td style="padding:4px 8px">${new Date(r.created_at).toLocaleString()}</td>`
+                            + `</tr>`
+                        ).join('')
+                        + '</table>';
+                }
+                openModal('logsModal');
+            } catch (err) {
+                console.error(err);
+                alert('Failed to load logs. Is the server running?');
+            }
+        });
 
         // Reset all reservations (protected)
         document.getElementById('resetBtn').addEventListener('click', async () => {

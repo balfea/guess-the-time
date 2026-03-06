@@ -28,11 +28,29 @@ This guide explains how to deploy the `server.js` backend to Railway.com to enab
 │    • ADMIN_PASSWORD_HASH                                   │
 │    • JWT_SECRET                                            │
 │    • PORT (auto-set by Railway)                           │
+│    • DATABASE_URL (auto-set when Postgres plugin added)   │
 │                                                             │
 │  API Endpoints:                                            │
-│  POST /login   - Admin authentication                      │
-│  POST /verify  - Token verification                        │
-│  POST /reset   - Reset all reservations                    │
+│  POST /login        - Admin authentication                 │
+│  POST /verify       - Token verification                   │
+│  GET  /reservations - Read all reservations (public)       │
+│  POST /reservations - Save/update a reservation (admin)    │
+│  DELETE /reservations/:time - Remove a reservation (admin) │
+│  POST /reset        - Reset all reservations (admin)       │
+│  GET  /logs         - View reservation entry log (admin)   │
+└─────────────────────────────────────────────────────────────┘
+         │
+         │ persistent storage
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Railway Postgres Plugin (recommended)          │
+│                                                             │
+│  Table: reservations                                        │
+│    time TEXT PRIMARY KEY, player_name TEXT, updated_at      │
+│                                                             │
+│  Table: reservation_log                                     │
+│    id, time, player_name, action, created_at               │
+│    ← full audit trail of every add/edit/delete             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -195,6 +213,36 @@ Now connect your GitHub Pages site to the Railway backend:
    - ✅ Can click on grid cells
    - ✅ Can reserve/edit squares
    - ✅ Reset button works
+
+## Add Postgres Plugin (Recommended — prevents data loss)
+
+> **Why?** Railway's Node.js filesystem is **ephemeral** — every redeploy wipes it.
+> Without Postgres, all reservation data is stored in `reservations.json` inside the
+> container and **will be lost** whenever the service restarts or is redeployed.
+> Adding the Postgres plugin gives you a persistent database and a full reservation entry log.
+
+### Steps
+
+1. **Open your Railway project dashboard**
+2. Click **"+ New"** → **"Database"** → **"Add PostgreSQL"**
+3. Railway automatically sets the `DATABASE_URL` environment variable on your service — no manual copy/paste needed
+4. **Redeploy** your service (Railway usually does this automatically)
+5. On first start the server creates two tables:
+   - `reservations` — stores current cell selections (survives restarts)
+   - `reservation_log` — timestamped audit log of every entry, edit, and delete
+
+### Viewing the reservation entry log
+
+Once Postgres is connected, admins can view the full log directly in the board UI:
+
+1. Log in as admin
+2. Click the **"View Logs"** button (appears next to Reset All)
+3. A table shows every cell entry with the player name, action, and exact timestamp
+
+This log is also queryable directly in the Railway Postgres console if you need to
+recover data (e.g., missing entries) or verify when a cell was reserved.
+
+---
 
 ## Troubleshooting
 
